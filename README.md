@@ -481,7 +481,18 @@ pm.test("Response contains user's feedback", function () {
 });
 ```
 
+### Get Feedback by Question (Academic Director/Executive Director Only)
 
+- **Method**: GET
+- **URL**: `{{base_url}}/feedback/question/{{question_id}}`
+- **Headers**:
+  - x-access-token: {{token}}
+- **Expected Response**: 200 OK or 403 Forbidden
+- **Tests**:
+```javascript
+pm.test("Status code is either 200 or 403", function () {
+    pm.expect(pm.response.code).to.be.oneOf([200, 403]);
+});
 
 if (pm.response.code === 200) {
     pm.test("Response contains feedback data", function () {
