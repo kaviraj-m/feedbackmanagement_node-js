@@ -78,34 +78,7 @@ exports.submitFeedback = async (req, res) => {
 };
 
 // Get feedback by user
-exports.getFeedbackByUser = async (req, res) => {
-  try {
-    const userId = req.params.userId || req.userId;
 
-    // Check if the requesting user has permission to view this user's feedback
-    if (req.userId !== userId && !req.userRoles.includes('ROLE_ACADEMIC_DIRECTOR') && !req.userRoles.includes('ROLE_EXECUTIVE_DIRECTOR')) {
-      return res.status(403).send({ message: 'Unauthorized to view this feedback' });
-    }
-
-    const feedback = await Feedback.findAll({
-      where: { userId: userId },
-      include: [{
-        model: Question,
-        as: 'question',
-        attributes: ['id', 'text', 'year'],
-        include: [{
-          model: Department,
-          as: 'department',
-          attributes: ['id', 'name']
-        }]
-      }]
-    });
-
-    res.status(200).send(feedback);
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-};
 
 // Get feedback by question
 exports.getFeedbackByQuestion = async (req, res) => {
