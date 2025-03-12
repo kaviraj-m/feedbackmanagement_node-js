@@ -73,32 +73,7 @@ exports.getQuestionsByDepartmentAndYear = async (req, res) => {
   }
 };
 
-// Update a question
-exports.updateQuestion = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const question = await Question.findByPk(id);
 
-    if (!question) {
-      return res.status(404).send({ message: 'Question not found' });
-    }
-
-    // Update question
-    await question.update({
-      text: req.body.text || question.text,
-      year: req.body.year || question.year,
-      departmentId: req.body.departmentId || question.departmentId,
-      active: req.body.active !== undefined ? req.body.active : question.active
-    });
-
-    res.status(200).send({
-      message: 'Question updated successfully',
-      question: question
-    });
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-};
 
 // Delete a question
 exports.deleteQuestion = async (req, res) => {
