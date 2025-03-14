@@ -73,10 +73,8 @@ exports.getQuestionsByDepartmentAndYear = async (req, res) => {
   }
 };
 
-
-
-// Delete a question
-exports.deleteQuestion = async (req, res) => {
+// Update a question
+exports.updateQuestion = async (req, res) => {
   try {
     const id = req.params.id;
     const question = await Question.findByPk(id);
@@ -85,12 +83,23 @@ exports.deleteQuestion = async (req, res) => {
       return res.status(404).send({ message: 'Question not found' });
     }
 
-    await question.destroy();
-    res.status(200).send({ message: 'Question deleted successfully' });
+    // Update question
+    await question.update({
+      text: req.body.text || question.text,
+      year: req.body.year || question.year,
+      departmentId: req.body.departmentId || question.departmentId,
+      active: req.body.active !== undefined ? req.body.active : question.active
+    });
+
+    res.status(200).send({
+      message: 'Question updated successfully',
+      question: question
+    });
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
 };
+
 
 // Get questions created by a specific user
 exports.getQuestionsByCreator = async (req, res) => {
