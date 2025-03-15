@@ -100,6 +100,22 @@ exports.updateQuestion = async (req, res) => {
   }
 };
 
+// Delete a question
+exports.deleteQuestion = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const question = await Question.findByPk(id);
+
+    if (!question) {
+      return res.status(404).send({ message: 'Question not found' });
+    }
+
+    await question.destroy();
+    res.status(200).send({ message: 'Question deleted successfully' });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+};
 
 // Get questions created by a specific user
 exports.getQuestionsByCreator = async (req, res) => {

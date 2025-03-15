@@ -148,27 +148,7 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-// Delete user
-exports.deleteUser = async (req, res) => {
-  try {
-    const user = await User.findByPk(req.params.id);
 
-    if (!user) {
-      return res.status(404).send({ message: 'User not found' });
-    }
-
-    // Check if the requesting user has permission to delete this user
-    if (!req.userRoles.includes('ROLE_ACADEMIC_DIRECTOR') && !req.userRoles.includes('ROLE_EXECUTIVE_DIRECTOR')) {
-      return res.status(403).send({ message: 'Unauthorized to delete users' });
-    }
-
-    await user.destroy();
-
-    res.status(200).send({ message: 'User deleted successfully' });
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-};
 
 // Change password
 exports.changePassword = async (req, res) => {
