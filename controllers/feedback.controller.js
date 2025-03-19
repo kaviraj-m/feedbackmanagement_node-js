@@ -267,11 +267,11 @@ exports.getAllFeedbackDescending = async (req, res) => {
   }
 };
 
-// Get overall feedback statistics (for executive director)
+// Get overall feedback statistics (for academic and executive directors)
 exports.getOverallFeedbackStats = async (req, res) => {
   try {
-    // Check if user has executive director role
-    if (!req.userRoles.includes('ROLE_EXECUTIVE_DIRECTOR')) {
+    // Check if user has academic or executive director role
+    if (!req.userRoles.includes('ROLE_ACADEMIC_DIRECTOR') && !req.userRoles.includes('ROLE_EXECUTIVE_DIRECTOR')) {
       return res.status(403).send({ message: 'Unauthorized to view overall feedback statistics' });
     }
 
