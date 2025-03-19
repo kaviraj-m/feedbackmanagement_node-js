@@ -263,9 +263,28 @@ if (pm.response.code === 200) {
 
 - **Method**: GET
 - **URL**: `{{base_url}}/departments`
-- **Headers**:
-  - x-access-token: {{token}}
+- **Headers**: None (Public endpoint)
 - **Expected Response**: 200 OK
+```json
+[
+    {
+        "id": 1,
+        "name": "Computer Science",
+        "description": "Computer Science and Engineering Department",
+        "active": true,
+        "createdAt": "2023-05-01T12:00:00.000Z",
+        "updatedAt": "2023-05-01T12:00:00.000Z"
+    },
+    {
+        "id": 2,
+        "name": "Electrical Engineering",
+        "description": "Electrical Engineering Department",
+        "active": true,
+        "createdAt": "2023-05-01T12:00:00.000Z",
+        "updatedAt": "2023-05-01T12:00:00.000Z"
+    }
+]
+```
 - **Tests**:
 ```javascript
 pm.test("Status code is 200", function () {
@@ -282,6 +301,160 @@ pm.test("Response is an array of departments", function () {
         pm.environment.set("department_id", jsonData[0].id);
     }
 });
+```
+
+### Get Department by ID
+
+- **Method**: GET
+- **URL**: `{{base_url}}/departments/{{department_id}}`
+- **Headers**: None (Public endpoint)
+- **Expected Response**: 200 OK
+```json
+{
+    "id": 1,
+    "name": "Computer Science",
+    "description": "Computer Science and Engineering Department",
+    "active": true,
+    "createdAt": "2023-05-01T12:00:00.000Z",
+    "updatedAt": "2023-05-01T12:00:00.000Z"
+}
+```
+- **Tests**:
+```javascript
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+pm.test("Response contains department data", function () {
+    var jsonData = pm.response.json();
+    pm.expect(jsonData.id).to.exist;
+    pm.expect(jsonData.name).to.exist;
+    pm.expect(jsonData.description).to.exist;
+});
+```
+
+### Create Department (Academic Director/Executive Director Only)
+
+- **Method**: POST
+- **URL**: `{{base_url}}/departments`
+- **Headers**:
+  - Content-Type: application/json
+  - x-access-token: {{token}}
+- **Body**:
+```json
+{
+    "name": "Mathematics",
+    "description": "Department of Mathematics",
+    "active": true
+}
+```
+- **Expected Response**: 201 Created
+```json
+{
+    "id": 3,
+    "name": "Mathematics",
+    "description": "Department of Mathematics",
+    "active": true,
+    "updatedAt": "2023-05-02T10:00:00.000Z",
+    "createdAt": "2023-05-02T10:00:00.000Z"
+}
+```
+- **Tests**:
+```javascript
+pm.test("Status code is 201 or 403", function () {
+    pm.expect(pm.response.code).to.be.oneOf([201, 403]);
+});
+
+if (pm.response.code === 201) {
+    pm.test("Department created successfully", function () {
+        var jsonData = pm.response.json();
+        pm.expect(jsonData.id).to.exist;
+        pm.expect(jsonData.name).to.exist;
+        pm.expect(jsonData.description).to.exist;
+    });
+} else {
+    pm.test("Access denied for unauthorized user", function () {
+        var jsonData = pm.response.json();
+        pm.expect(jsonData.message).to.include("Unauthorized");
+    });
+}
+```
+
+### Update Department (Academic Director/Executive Director Only)
+
+- **Method**: PUT
+- **URL**: `{{base_url}}/departments/{{department_id}}`
+- **Headers**:
+  - Content-Type: application/json
+  - x-access-token: {{token}}
+- **Body**:
+```json
+{
+    "name": "Updated Department Name",
+    "description": "Updated department description",
+    "active": true
+}
+```
+- **Expected Response**: 200 OK
+```json
+{
+    "message": "Department was updated successfully."
+}
+```
+- **Tests**:
+```javascript
+pm.test("Status code is 200 or 403", function () {
+    pm.expect(pm.response.code).to.be.oneOf([200, 403]);
+});
+
+if (pm.response.code === 200) {
+    pm.test("Department updated successfully", function () {
+        var jsonData = pm.response.json();
+        pm.expect(jsonData.message).to.include("Department was updated successfully");
+    });
+} else {
+    pm.test("Access denied for unauthorized user", function () {
+        var jsonData = pm.response.json();
+        pm.expect(jsonData.message).to.include("Unauthorized");
+    });
+}
+```
+
+### Delete Department (Academic Director/Executive Director Only)
+
+- **Method**: DELETE
+- **URL**: `{{base_url}}/departments/{{department_id}}`
+- **Headers**:
+  - x-access-token: {{token}}
+- **Expected Response**: 200 OK
+```json
+{
+    "message": "Department was deleted successfully!"
+}
+```
+- **Tests**:
+```javascript
+pm.test("Status code is 200 or 403 or 400", function () {
+    pm.expect(pm.response.code).to.be.oneOf([200, 403, 400]);
+});
+
+if (pm.response.code === 200) {
+    pm.test("Department deleted successfully", function () {
+        var jsonData = pm.response.json();
+        pm.expect(jsonData.message).to.include("Department was deleted successfully");
+    });
+} else if (pm.response.code === 400) {
+    pm.test("Cannot delete department with associated data", function () {
+        var jsonData = pm.response.json();
+        pm.expect(jsonData.message).to.include("Cannot delete department");
+    });
+} else {
+    pm.test("Access denied for unauthorized user", function () {
+        var jsonData = pm.response.json();
+        pm.expect(jsonData.message).to.include("Unauthorized");
+    });
+}
+```
 ```
 
 ## Question Management
