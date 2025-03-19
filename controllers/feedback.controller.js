@@ -37,6 +37,19 @@ exports.submitFeedback = async (req, res) => {
     if (question.year !== user.year) {
       return res.status(403).send({ message: 'You cannot submit feedback for a different year' });
     }
+    
+    // Get user roles
+    const roles = await user.getRoles();
+    const userRoleNames = roles.map(role => role.name);
+    
+    // Check if user's role matches the question's role requirement
+    if (question.role === 'student' && !userRoleNames.includes('student')) {
+      return res.status(403).send({ message: 'This question is only for students' });
+    }
+    
+    if (question.role === 'staff' && !userRoleNames.includes('staff')) {
+      return res.status(403).send({ message: 'This question is only for staff' });
+    }
 
     // Check if user has already submitted feedback for this question
     const existingFeedback = await Feedback.findOne({

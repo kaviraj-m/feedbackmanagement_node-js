@@ -21,6 +21,11 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.BOOLEAN,
       defaultValue: true
     },
+    role: {
+      type: Sequelize.ENUM('student', 'staff', 'both'),
+      allowNull: false,
+      defaultValue: 'both'
+    },
     createdBy: {
       type: Sequelize.INTEGER,
       allowNull: false,

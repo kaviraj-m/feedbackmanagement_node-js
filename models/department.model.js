@@ -17,6 +17,10 @@ module.exports = (sequelize, Sequelize) => {
     active: {
       type: Sequelize.BOOLEAN,
       defaultValue: true
+    },
+    roleId: {
+      type: Sequelize.INTEGER,
+      allowNull: true
     }
   });
 

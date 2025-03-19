@@ -29,10 +29,17 @@ app.get('/', (req, res) => {
 // Set port and start server
 const PORT = process.env.PORT || 8080;
 
-// Sync database and start server
+// Import seeders
+const runSeeders = require('./seeders');
+
+// Sync database, run seeders, and start server
 db.sequelize.sync()
-  .then(() => {
+  .then(async () => {
     console.log('Database synchronized successfully.');
+    
+    // Run database seeders
+    await runSeeders();
+    
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}.`);
     });

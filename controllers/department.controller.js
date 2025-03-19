@@ -15,7 +15,8 @@ exports.createDepartment = async (req, res) => {
     const department = {
       name: req.body.name,
       description: req.body.description || null,
-      active: req.body.active !== undefined ? req.body.active : true
+      active: req.body.active !== undefined ? req.body.active : true,
+      roleId: req.body.roleId || 1 // Default to role ID 1 if not provided
     };
 
     // Check if department with same name already exists

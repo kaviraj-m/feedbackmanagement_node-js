@@ -3,17 +3,16 @@ const router = express.Router();
 const departmentController = require('../controllers/department.controller');
 const authJwt = require('../middleware/authJwt');
 
-// Create a new department (admin only)
+// Create a new department (public endpoint)
 router.post(
   '/',
-  [authJwt.verifyToken, authJwt.isAcademicDirectorOrExecutiveDirector],
   departmentController.createDepartment
 );
 
-// Get all departments
+// Get all departments (public endpoint)
 router.get('/', departmentController.getAllDepartments);
 
-// Get department by ID
+// Get department by ID (public endpoint)
 router.get('/:id', departmentController.getDepartmentById);
 
 // Update department (admin only)

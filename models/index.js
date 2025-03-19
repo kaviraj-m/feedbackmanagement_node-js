@@ -42,6 +42,17 @@ db.user.belongsToMany(db.role, {
   otherKey: 'roleId'
 });
 
+// User-Primary Role relationship (One-to-One)
+db.role.hasMany(db.user, {
+  foreignKey: 'roleId',
+  as: 'primaryUsers'
+});
+
+db.user.belongsTo(db.role, {
+  foreignKey: 'roleId',
+  as: 'primaryRole'
+});
+
 // User-Department relationship
 db.department.hasMany(db.user, { as: 'users' });
 db.user.belongsTo(db.department, {
@@ -54,6 +65,16 @@ db.department.hasMany(db.question, { as: 'questions' });
 db.question.belongsTo(db.department, {
   foreignKey: 'departmentId',
   as: 'department'
+});
+
+// Department-Role relationship
+db.department.belongsTo(db.role, {
+  foreignKey: 'roleId',
+  as: 'role'
+});
+db.role.hasMany(db.department, {
+  foreignKey: 'roleId',
+  as: 'departments'
 });
 
 // Feedback relationships

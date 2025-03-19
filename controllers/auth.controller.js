@@ -36,10 +36,15 @@ exports.signup = async (req, res) => {
     });
 
     // Assign roles
+    // Convert single role ID to array if needed
+    if (req.body.roles && typeof req.body.roles === 'number') {
+      req.body.roles = [req.body.roles];
+    }
+    
     if (req.body.roles && req.body.roles.length > 0) {
       const roles = await Role.findAll({
         where: {
-          name: {
+          id: {
             [db.Sequelize.Op.in]: req.body.roles
           }
         }
@@ -47,17 +52,23 @@ exports.signup = async (req, res) => {
 
       if (roles.length > 0) {
         await user.setRoles(roles);
+        // Set the first role as the primary role
+        await user.update({ roleId: roles[0].id });
         res.status(201).send({ message: 'User registered successfully with specified roles' });
       } else {
-        // Default role is 'student'
-        const defaultRole = await Role.findOne({ where: { name: 'student' } });
+        // Default role is 'student' (ID: 1)
+        const defaultRole = await Role.findOne({ where: { id: 1 } });
         await user.setRoles([defaultRole]);
+        // Set the default role as the primary role
+        await user.update({ roleId: defaultRole.id });
         res.status(201).send({ message: 'User registered successfully with default role' });
       }
     } else {
-      // Default role is 'student'
-      const defaultRole = await Role.findOne({ where: { name: 'student' } });
+      // Default role is 'student' (ID: 1)
+      const defaultRole = await Role.findOne({ where: { id: 1 } });
       await user.setRoles([defaultRole]);
+      // Set the default role as the primary role
+      await user.update({ roleId: defaultRole.id });
       res.status(201).send({ message: 'User registered successfully with default role' });
     }
   } catch (error) {
@@ -68,9 +79,12 @@ exports.signup = async (req, res) => {
 // User login
 exports.signin = async (req, res) => {
   try {
-    // Find user by username
+    // Check if input is username or email
+    const isEmail = req.body.username && req.body.username.includes('@');
+    
+    // Find user by username or email
     const user = await User.findOne({
-      where: { username: req.body.username }
+      where: isEmail ? { email: req.body.username } : { username: req.body.username }
     });
 
     if (!user) {
@@ -94,9 +108,20 @@ exports.signin = async (req, res) => {
       expiresIn: config.jwtExpiration
     });
 
-    // Get user roles
-    const roles = await user.getRoles();
-    const authorities = roles.map(role => `ROLE_${role.name.toUpperCase()}`);
+    // Get user roles - first check the primary role from roleId
+    let authorities = [];
+    if (user.roleId) {
+      const primaryRole = await Role.findByPk(user.roleId);
+      if (primaryRole) {
+        authorities.push(`ROLE_${primaryRole.name.toUpperCase()}`);
+      }
+    }
+    
+    // If no primary role found, fall back to the many-to-many relationship
+    if (authorities.length === 0) {
+      const roles = await user.getRoles();
+      authorities = roles.map(role => `ROLE_${role.name.toUpperCase()}`);
+    }
 
     // Get user department
     const department = await user.getDepartment();

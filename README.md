@@ -37,7 +37,7 @@ Create a Postman environment with the following variables:
     "fullName": "Test User",
     "year": 2,
     "departmentId": 1,
-    "roles": ["student"]
+    "roles": 1
 }
 ```
 - **Expected Response**: 201 Created
@@ -67,10 +67,20 @@ pm.test("Response contains success message", function () {
 - **Body**:
 ```json
 {
-    "username": "testuser",
+    "username": "testuser", // Can be either username or email address
     "password": "password123"
 }
 ```
+
+  **Alternative Body (using email):**
+```json
+{
+    "username": "test@example.com", // Email can be used in place of username
+    "password": "password123"
+}
+```
+
+  **Note:** The API now supports authentication using either username or email address in the "username" field.
 - **Expected Response**: 200 OK
 ```json
 {
@@ -578,6 +588,177 @@ if (pm.response.code === 200) {
 }
 ```
 
+## Department Management
+
+### Create Department (Academic Director/Executive Director Only)
+
+- **Method**: POST
+- **URL**: `{{base_url}}/departments`
+- **Headers**:
+  - Content-Type: application/json
+  
+- **Body**:
+```json
+{
+    "name": "Computer Science",
+    "description": "Department for Computer Science courses",
+    "active": true
+}
+```
+- **Expected Response**: 201 Created
+```json
+{
+    "id": 1,
+    "name": "Computer Science",
+    "description": "Department for Computer Science courses",
+    "active": true,
+    "updatedAt": "2023-05-01T12:00:00.000Z",
+    "createdAt": "2023-05-01T12:00:00.000Z"
+}
+```
+- **Tests**:
+```javascript
+pm.test("Status code is 201", function () {
+    pm.response.to.have.status(201);
+});
+
+pm.test("Response contains department data", function () {
+    var jsonData = pm.response.json();
+    pm.expect(jsonData.id).to.exist;
+    pm.expect(jsonData.name).to.exist;
+    
+    // Store department ID for later tests
+    pm.environment.set("department_id", jsonData.id);
+});
+```
+
+### Get All Departments (Public)
+
+- **Method**: GET
+- **URL**: `{{base_url}}/departments`
+- **Expected Response**: 200 OK
+```json
+[
+    {
+        "id": 1,
+        "name": "Computer Science",
+        "description": "Department for Computer Science courses",
+        "active": true,
+        "createdAt": "2023-05-01T12:00:00.000Z",
+        "updatedAt": "2023-05-01T12:00:00.000Z"
+    },
+    {
+        "id": 2,
+        "name": "Mathematics",
+        "description": "Department for Mathematics courses",
+        "active": true,
+        "createdAt": "2023-05-01T12:00:00.000Z",
+        "updatedAt": "2023-05-01T12:00:00.000Z"
+    }
+]
+```
+- **Tests**:
+```javascript
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+pm.test("Response is an array of departments", function () {
+    var jsonData = pm.response.json();
+    pm.expect(jsonData).to.be.an('array');
+    if (jsonData.length > 0) {
+        pm.expect(jsonData[0].id).to.exist;
+        pm.expect(jsonData[0].name).to.exist;
+    }
+});
+```
+
+### Get Department by ID (Public)
+
+- **Method**: GET
+- **URL**: `{{base_url}}/departments/{{department_id}}`
+- **Expected Response**: 200 OK
+```json
+{
+    "id": 1,
+    "name": "Computer Science",
+    "description": "Department for Computer Science courses",
+    "active": true,
+    "createdAt": "2023-05-01T12:00:00.000Z",
+    "updatedAt": "2023-05-01T12:00:00.000Z"
+}
+```
+- **Tests**:
+```javascript
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+pm.test("Response contains department data", function () {
+    var jsonData = pm.response.json();
+    pm.expect(jsonData.id).to.exist;
+    pm.expect(jsonData.name).to.exist;
+    pm.expect(jsonData.id).to.eql(parseInt(pm.environment.get("department_id")));
+});
+```
+
+### Update Department (Academic Director/Executive Director Only)
+
+- **Method**: PUT
+- **URL**: `{{base_url}}/departments/{{department_id}}`
+- **Headers**:
+  - Content-Type: application/json
+  - x-access-token: {{token}}
+- **Body**:
+```json
+{
+    "name": "Computer Science and Engineering",
+    "description": "Updated department description",
+    "active": true
+}
+```
+- **Expected Response**: 200 OK
+```json
+{
+    "message": "Department was updated successfully."
+}
+```
+- **Tests**:
+```javascript
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+pm.test("Department updated successfully", function () {
+    var jsonData = pm.response.json();
+    pm.expect(jsonData.message).to.include("Department was updated successfully");
+});
+```
+
+### Delete Department (Academic Director/Executive Director Only)
+
+- **Method**: DELETE
+- **URL**: `{{base_url}}/departments/{{department_id}}`
+- **Headers**:
+  - x-access-token: {{token}}
+- **Expected Response**: 200 OK
+```json
+{
+    "message": "Department was deleted successfully!"
+}
+```
+- **Tests**:
+```javascript
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+pm.test("Department deleted successfully", function () {
+    var jsonData = pm.response.json();
+    pm.expect(jsonData.message).to.include("Department was deleted successfully");
+});
+```
+
 ## Feedback Management
 
 ### Submit Feedback
@@ -590,7 +771,7 @@ if (pm.response.code === 200) {
 - **Body**:
 ```json
 {
-    "questionId": "{{question_id}}",
+    "questionId": 1,
     "rating": 4,
     "notes": "The course content was very informative."
 }
