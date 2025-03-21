@@ -465,7 +465,7 @@ if (pm.response.code === 200) {
     });
 }
 ```
-```
+
 
 ## Question Management
 
@@ -477,13 +477,13 @@ if (pm.response.code === 200) {
   - Content-Type: application/json
   - x-access-token: {{token}}
 - **Body**:
-```json
-{
-    "text": "How would you rate the course content?",
-    "year": 2,
-    "departmentId": 1
-}
-```
+json
+ {
+  "text": "How would you rate the course content?",
+  "year": 2,
+  "departmentId": 1,
+  "role": "student"
+ }
 - **Expected Response**: 201 Created or 403 Forbidden
 - **Tests**:
 ```javascript
@@ -934,7 +934,7 @@ if (pm.response.code === 200) {
 }
 ```
 
-### Get Overall Feedback Statistics (Executive Director Only)
+### Get Overall Feedback Statistics (Executive Director And Acedemic Director)
 
 - **Method**: GET
 - **URL**: `{{base_url}}/feedback/stats/overall`

@@ -45,10 +45,10 @@ router.get(
   feedbackController.getAllFeedbackDescending
 );
 
-// Get overall feedback statistics (executive director only)
+// Get overall feedback statistics (academic director and executive director only)
 router.get(
   '/stats/overall',
-  [authJwt.verifyToken, authJwt.isExecutiveDirector],
+  [authJwt.verifyToken, authJwt.isAcademicDirectorOrExecutiveDirector],
   feedbackController.getOverallFeedbackStats
 );
 

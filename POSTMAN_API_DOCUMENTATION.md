@@ -406,9 +406,10 @@ Most endpoints require authentication using JWT tokens. After successful login, 
 - **Request Body**:
   ```json
   {
-    "text": "How would you rate the quality of teaching in this course?",
-    "year": 2023,
-    "departmentId": 1
+  "text": "How would you rate the course content?",
+  "year": 2,
+  "departmentId": 1,
+  "role": "student"
   }
   ```
 - **Success Response**: `201 Created`
